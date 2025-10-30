@@ -24,13 +24,27 @@ async function executeTransaction(txid,account){
 }
 
 async function deposit(amount,account){
-    amountTotal+= amount;
-    return await depositToContract(WALLET_CONTRACT,contract.abi,amount,account)
+    const receipt = await depositToContract(WALLET_CONTRACT,contract.abi,amount,account)
+    return receipt
 }
 
 async function releasePayments(account){
     const receipt = await sendTransaction('releasePayments',[],account)
     return receipt
+}
+
+async function getReleasesHistory() {
+    const walletContract = getContract(WALLET_CONTRACT, contract.abi);
+    const releases = await walletContract.getReleasesHistory();
+
+    return releases.map(r => ({
+        payee: r.payee,
+        amount: ethers.utils.formatEther(r.amount.toString()),
+        timestamp: r.timestamp.toNumber(),
+        date: new Date(r.timestamp.toNumber() * 1000).toLocaleString('en-US', {
+        timeZone: 'America/Chicago'
+    })
+    }));
 }
 
 async function getBalance(){
@@ -61,7 +75,9 @@ async function getApprovalsHistory(txId){
     const formattedApprovals = approvals.map(a => ({
         approver: a.approver,
         timestamp: a.timestamp.toNumber(),
-        date: new Date(a.timestamp.toNumber() * 1000).toISOString()
+        date: new Date(a.timestamp.toNumber() * 1000).toLocaleString('en-US', {
+        timeZone: 'America/Chicago'
+    })
     }));
 
     return {
@@ -119,6 +135,7 @@ module.exports={
     approveTransaction,
     executeTransaction,
     releasePayments,
+    getReleasesHistory,
     getBalance,
     getTransactions,
     getApprovalsHistory,

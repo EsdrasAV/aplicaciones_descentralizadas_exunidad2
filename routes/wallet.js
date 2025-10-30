@@ -51,12 +51,13 @@ router.post('/execute', async (req, res) => {
     }
 });
 
-router.get('/release', async (req,res) => {
-    try{
-        const releases = walletController.getReleases()
-        res.json({success: true, releases})
-    }catch(error){
-        res.status(500).json(error.message)
+router.get('/releases', async (req, res) => {
+    try {
+        const history = await walletController.getReleasesHistory();
+        res.json({ success: true, releases: history });
+    } catch (error) {
+        console.error('Get releases error:', error);
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 

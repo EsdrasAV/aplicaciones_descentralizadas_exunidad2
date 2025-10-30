@@ -92,7 +92,7 @@ contract MultiSignPaymentWallet {
         uint256 timestamp;
     }
 
-    // Guardamos historial por txId
+    //Guardamos historial por txId
     mapping(uint => ApprovalInfo[]) public approvalHistory;
 
     function approveTransaction(uint txId) external onlyOwner(){
@@ -102,7 +102,7 @@ contract MultiSignPaymentWallet {
         approvals[txId][msg.sender] = true;
         transaction.approvalCount++;
 
-        // Guardamos histórico con timestamp
+        //Guardamos historico con timestamp
         approvalHistory[txId].push(ApprovalInfo({
             approver: msg.sender,
             timestamp: block.timestamp
@@ -111,7 +111,7 @@ contract MultiSignPaymentWallet {
         emit TransactionApproved(txId, msg.sender);
     }
 
-    // Nueva función para obtener historial completo de aprobaciones
+    //Nueva función para obtener historial completo de aprobaciones
     function getApprovalHistory(uint txId) public view returns (ApprovalInfo[] memory) {
         return approvalHistory[txId];
     }
@@ -125,6 +125,15 @@ contract MultiSignPaymentWallet {
         require(success, "Transaction failed");
         emit TransactionExecuted(txId, transaction.to, transaction.amount);
     }
+
+    struct ReleaseInfo {
+        address payee;
+        uint256 amount;
+        uint256 timestamp;
+    }
+
+    ReleaseInfo[] public releasesHistory;
+
     function releasePayments() external onlyOwner nonReentrant{
         uint256 balance = address(this).balance;
         require(balance>0,"No hay fondos");
@@ -133,9 +142,23 @@ contract MultiSignPaymentWallet {
             uint256 payment = (balance * shares[payee]) / totalShares;
             (bool success,) = payee.call{value:payment}("");
             require(success, "Transaction failed");
+
+            //Guardamos en el historial
+            releasesHistory.push(ReleaseInfo({
+                payee: payee,
+                amount: payment,
+                timestamp: block.timestamp
+            }));
+
             emit PaymentReleased(payee, payment);
         }
     }
+
+    function getReleasesHistory() public view returns (ReleaseInfo[] memory) {
+        return releasesHistory;
+    }
+
+    
 
     function getTransactions() external view returns(Transaction[] memory){
         return transactions;
