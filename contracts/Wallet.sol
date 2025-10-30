@@ -5,6 +5,7 @@ contract MultiSignPaymentWallet {
     mapping (address=>bool) public isOwner;
  
     struct Transaction {
+        uint id;
         address to;
         uint amount;
         uint approvalCount;
@@ -68,16 +69,20 @@ contract MultiSignPaymentWallet {
         require(msg.value>0, "Debes mandar ether");
         emit Deposit(msg.sender,msg.value);
     }
+
+    uint id = 0;
     function SubmitTransaction(address _to, uint amount) external onlyOwner{
         require(_to!=address(0), "Invalid Address");
         require(amount>0, "Invalid Amount");
         transactions.push(
             Transaction({
+                id:id,
                 to:_to,
                 amount:amount,
                 approvalCount:0, executed:false
             })
         );
+        id++;
         emit TransactionSubmitted(transactions.length-1,_to,amount);
     }
 

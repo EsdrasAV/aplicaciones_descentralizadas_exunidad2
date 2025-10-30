@@ -51,13 +51,22 @@ router.post('/execute', async (req, res) => {
     }
 });
 
+router.get('/release', async (req,res) => {
+    try{
+        const releases = walletController.getReleases()
+        res.json({success: true, releases})
+    }catch(error){
+        res.status(500).json(error.message)
+    }
+});
+
 router.post('/release', async (req, res) => {
     try {
         const { account } = req.body;
         
 
         const receipt = await walletController.releasePayments(account);
-        res.json({ success: true, message: 'Payments released to all payees', receipt });
+        res.json({ success: true, message: 'Payments released to all payees', receipt});
     } catch (error) {
         console.error('Release error:', error);
         res.status(500).json({ success: false, message: error.message });

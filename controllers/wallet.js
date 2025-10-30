@@ -24,6 +24,7 @@ async function executeTransaction(txid,account){
 }
 
 async function deposit(amount,account){
+    amountTotal+= amount;
     return await depositToContract(WALLET_CONTRACT,contract.abi,amount,account)
 }
 
@@ -46,6 +47,7 @@ async function getTransactions(){
 
 function formatTransaction(info){
     return {
+        id: ethers.BigNumber.from(info.id).toString(),
         to: info.to,
         amount: ethers.BigNumber.from(info.amount).toString(),
         approvalCount:ethers.BigNumber.from(info.approvalCount).toString(),
