@@ -8,6 +8,7 @@ const pagosRoutes = require('./routes/pagos');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(express.static('public'))
 
 //app.use('/api/user', userRoutes);
 app.use('/api/wallet', walletRoutes);
